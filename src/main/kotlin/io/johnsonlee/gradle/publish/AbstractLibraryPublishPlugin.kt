@@ -14,19 +14,24 @@ abstract class AbstractLibraryPublishPlugin : Plugin<Project> {
     final override fun apply(project: Project) {
         val repo = project.git
         val git = Git(repo)
-        val developers = try {
+        val localName: String = System.getProperty("user.name")
+        val devName: String? = repo.config.getString("user", null, "name")
+        val devEmail: String? = repo.config.getString("user", null, "email")
+        val devAccount = devEmail?.let { email ->
+            setOf(email to (devName ?: email.substringBefore("@")))
+        }
+        val url = repo.config.getString("remote", "origin", "url")
+        val license = project.license
+        val developers = (try {
             git.log().call().map {
                 val author = it.authorIdent
-                author.name to author.emailAddress
+                author.emailAddress to author.name
             }.toSet()
         } catch (e: Throwable) {
             emptySet()
-        }
-        val localName: String = System.getProperty("user.name")
-        val devName: String = repo.config.getString("user", null, "name") ?: localName
-        val devEmail: String = repo.config.getString("user", null, "email") ?: "${localName}@local"
-        val url = repo.config.getString("remote", "origin", "url")
-        val license = project.license
+        }).takeIf(Collection<Pair<String, String>>::isNotEmpty)
+                ?: devAccount
+                ?: setOf("${localName}@local" to localName)
 
         project.run {
             afterEvaluate {
@@ -58,12 +63,7 @@ abstract class AbstractLibraryPublishPlugin : Plugin<Project> {
                                         }
                                     }
                                     appendNode("developers").apply {
-                                        appendNode("developer").apply {
-                                            appendNode("id", devName)
-                                            appendNode("name", devName)
-                                            appendNode("email", devEmail)
-                                        }
-                                        developers.forEach { (name, email) ->
+                                        developers.forEach { (email, name) ->
                                             appendNode("developer").apply {
                                                 appendNode("id", name)
                                                 appendNode("name", name)
