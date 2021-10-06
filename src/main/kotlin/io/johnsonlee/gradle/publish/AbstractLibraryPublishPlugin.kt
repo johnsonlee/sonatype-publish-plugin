@@ -7,8 +7,6 @@ import org.gradle.api.Project
 import org.gradle.api.Project.DEFAULT_VERSION
 import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.TaskProvider
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.maven
 
 abstract class AbstractLibraryPublishPlugin : Plugin<Project> {
@@ -32,7 +30,7 @@ abstract class AbstractLibraryPublishPlugin : Plugin<Project> {
 
         project.run {
             afterEvaluate {
-                configureDokka()
+                configureDependencies()
 
                 publishing {
                     repositories {
@@ -87,23 +85,28 @@ abstract class AbstractLibraryPublishPlugin : Plugin<Project> {
             config: MavenPublication.() -> Unit
     )
 
+    open fun Project.configureDependencies() {
+        configureDokka()
+    }
+
     fun MavenPublication.configure(project: Project) {
         artifactId = project.name
         groupId = listOf(project.group, project.rootProject.group)
                 .map(Any::toString)
+                .filterNot { it == project.rootProject.name || it.startsWith("${project.rootProject.name}.") }
                 .firstOrNull(String::isNotBlank)
                 ?: throw GradleException("group id of $project has not been configured")
         version = listOf(project.version, project.rootProject.version)
-                .firstOrNull { it != DEFAULT_VERSION }?.toString()
+                .map(Any::toString)
+                .firstOrNull { it != DEFAULT_VERSION }
                 ?: throw GradleException("version of $project has not been configured")
     }
 
-    private fun Project.configureDokka() {
+    fun Project.configureDokka() {
         extensions.findByName("kotlin")?.let {
             plugins.run {
                 apply("org.jetbrains.dokka")
             }
-            dependencies.add("dokkaHtmlPlugin", "org.jetbrains.dokka:kotlin-as-java-plugin:1.4.32")
         }
     }
 

@@ -4,6 +4,7 @@ import de.marcphilipp.gradle.nexus.NexusPublishExtension
 import io.codearte.gradle.nexus.NexusStagingExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.repositories
 
 /**
  * Gradle plugin for publishing artifacts to [Sonatype](https://oss.sonatype.org/)
@@ -17,6 +18,10 @@ class SonatypePublishPlugin : Plugin<Project> {
         project.run(Project::configureNexusPublish)
 
         project.run {
+            repositories {
+                mavenCentral()
+            }
+
             afterEvaluate {
                 when {
                     hasAndroidLibraryPlugin -> plugins.apply(AndroidLibraryPublishPlugin::class.java)
