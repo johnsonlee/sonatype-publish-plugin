@@ -23,7 +23,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath("io.johnsonlee:sonatype-publish-plugin:1.0.0")
+        classpath("io.johnsonlee:sonatype-publish-plugin:1.2.0")
     }
 }
 ```
