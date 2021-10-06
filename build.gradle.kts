@@ -1,3 +1,4 @@
+import org.gradle.api.Project.DEFAULT_VERSION
 import org.gradle.kotlin.dsl.*
 
 plugins {
@@ -12,7 +13,7 @@ plugins {
 }
 
 group = "io.johnsonlee"
-version = project.properties["version"]?.takeUnless { it == "unspecified" } ?: "1.0.0-SNAPSHOT"
+version = project.properties["version"]?.takeIf { it != DEFAULT_VERSION } ?: "1.0.0-SNAPSHOT"
 description = "Gradle plugin for publishing artifacts to Sonatype"
 
 repositories {
@@ -54,9 +55,9 @@ val sourcesJar by tasks.registering(Jar::class) {
 }
 
 val javadocJar by tasks.registering(Jar::class) {
-    dependsOn(JavaPlugin.JAVADOC_TASK_NAME)
+    dependsOn("dokkaHtml")
     archiveClassifier.set("javadoc")
-    from(tasks["javadoc"])
+    from(tasks["dokkaHtml"])
 }
 
 val OSSRH_USERNAME = "${project.properties["OSSRH_USERNAME"] ?: System.getenv("OSSRH_USERNAME")}"

@@ -19,21 +19,21 @@ open class JavaLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
         publications.run {
             register("mavenJava", MavenPublication::class) {
                 val sourceSets = the<SourceSetContainer>()
-                val sourcesJar = tasks.register("sourcesJar${name.capitalize()}", Jar::class.java) {
-                    dependsOn(JavaPlugin.CLASSES_TASK_NAME)
-                    archiveClassifier.set("sources")
-                    from(sourceSets["main"].allSource)
-                }
-                val javadocJar = tasks.register("javadocJar${name.capitalize()}", Jar::class.java) {
+                val javadocJar = tasks.register("packageJavadocFor${name.capitalize()}", Jar::class.java) {
                     dependsOn(JavaPlugin.JAVADOC_TASK_NAME)
                     archiveClassifier.set("javadoc")
                     from(tasks["javadoc"])
                 }
+                val sourcesJar = tasks.register("packageSourcesFor${name.capitalize()}", Jar::class.java) {
+                    dependsOn(JavaPlugin.CLASSES_TASK_NAME)
+                    archiveClassifier.set("sources")
+                    from(sourceSets["main"].allSource)
+                }
 
                 configure(project)
+                from(components["java"])
                 artifact(javadocJar)
                 artifact(sourcesJar)
-                from(components["java"])
                 config.invoke(this)
             }
         }

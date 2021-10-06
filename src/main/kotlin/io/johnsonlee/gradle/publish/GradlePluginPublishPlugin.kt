@@ -17,16 +17,18 @@ class GradlePluginPublishPlugin : AbstractLibraryPublishPlugin() {
     ) {
         publications.run {
             val sourceSets = the<SourceSetContainer>()
-            val javadocsJar = tasks.register("packageJavadoc${project.name.capitalize()}", Jar::class.java) {
+            val javadocJar = tasks.register("packageJavadocFor${name.capitalize()}", Jar::class.java) {
+                dependsOn("dokkaHtml")
                 archiveClassifier.set("javadoc")
-                from(tasks["javadoc"])
+                from(tasks["dokkaHtml"])
             }
-            val sourcesJar = tasks.register("packageSources${project.name.capitalize()}", Jar::class.java) {
+            val sourcesJar = tasks.register("packageSourcesFor${name.capitalize()}", Jar::class.java) {
                 archiveClassifier.set("sources")
                 from(sourceSets["main"].allSource)
             }
+
             withType<MavenPublication>().configureEach {
-                artifact(javadocsJar)
+                artifact(javadocJar)
                 artifact(sourcesJar)
                 config.invoke(this)
             }

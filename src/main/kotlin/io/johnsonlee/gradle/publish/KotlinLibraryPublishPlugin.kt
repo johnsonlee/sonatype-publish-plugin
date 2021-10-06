@@ -17,23 +17,22 @@ open class KotlinLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
             config: MavenPublication.() -> Unit
     ) {
         publications.run {
-            register("${project.name}MavenJava", MavenPublication::class) {
+            register("mavenJava", MavenPublication::class) {
                 val sourceSets = the<SourceSetContainer>()
-                val sourcesJar = tasks.register("sourcesJar${project.name.capitalize()}", Jar::class.java) {
+                val javadocJar = tasks.register("packageJavadocFor${name.capitalize()}", Jar::class.java) {
+                    archiveClassifier.set("javadoc")
+                    from(tasks["dokkaHtml"])
+                }
+                val sourcesJar = tasks.register("packageSourcesFor${name.capitalize()}", Jar::class.java) {
                     dependsOn(JavaPlugin.CLASSES_TASK_NAME)
                     archiveClassifier.set("sources")
                     from(sourceSets["main"].allSource)
                 }
-                val javadocJar = tasks.register("javadocJar${project.name.capitalize()}", Jar::class.java) {
-                    dependsOn(JavaPlugin.JAVADOC_TASK_NAME)
-                    archiveClassifier.set("javadoc")
-                    from(tasks["javadoc"])
-                }
 
                 configure(project)
                 from(components["java"])
-                artifact(sourcesJar)
                 artifact(javadocJar)
+                artifact(sourcesJar)
                 config.invoke(this)
             }
         }

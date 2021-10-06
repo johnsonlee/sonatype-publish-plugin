@@ -18,20 +18,20 @@ class AndroidLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
 
         publications.run {
             android.libraryVariants.forEach { variant ->
-                val javadocs = tasks.register("androidJavadocs${variant.name.capitalize()}", Javadoc::class.java) {
+                val javadoc = tasks.register("javadocFor${variant.name.capitalize()}", Javadoc::class.java) {
                     dependsOn("dokkaHtml")
                     source(android.sourceSets["main"].java.srcDirs)
                     classpath += files(android.bootClasspath + variant.javaCompileProvider.get().classpath)
                     exclude("**/R.html", "**/R.*.html", "**/index.html")
                 }
 
-                val javadocsJar = tasks.register("androidJavadocsJar${variant.name.capitalize()}", Jar::class.java) {
-                    dependsOn(javadocs)
+                val javadocJar = tasks.register("packageJavadocFor${variant.name.capitalize()}", Jar::class.java) {
+                    dependsOn(javadoc)
                     archiveClassifier.set("javadoc")
                     from(tasks["dokkaHtml"])
                 }
 
-                val sourcesJar = tasks.register("androidSourcesJar${variant.name.capitalize()}", Jar::class.java) {
+                val sourcesJar = tasks.register("packageSourcesFor${variant.name.capitalize()}", Jar::class.java) {
                     archiveClassifier.set("sources")
                     from(android.sourceSets["main"].java.srcDirs)
                 }
@@ -39,7 +39,7 @@ class AndroidLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
                 create(variant.name, MavenPublication::class.java) {
                     configure(project)
                     from(components[variant.name])
-                    artifact(javadocsJar)
+                    artifact(javadocJar)
                     artifact(sourcesJar)
                     config.invoke(this)
                 }
