@@ -91,11 +91,19 @@ abstract class AbstractLibraryPublishPlugin : Plugin<Project> {
 
     fun MavenPublication.configure(project: Project) {
         artifactId = project.name
+        configureGroupId(project)
+        configureVersion(project)
+    }
+
+    fun MavenPublication.configureGroupId(project: Project) {
         groupId = listOf(project.group, project.rootProject.group)
                 .map(Any::toString)
                 .filterNot { it == project.rootProject.name || it.startsWith("${project.rootProject.name}.") }
                 .firstOrNull(String::isNotBlank)
                 ?: throw GradleException("group id of $project has not been configured")
+    }
+
+    fun MavenPublication.configureVersion(project: Project) {
         version = listOf(project.version, project.rootProject.version)
                 .map(Any::toString)
                 .firstOrNull { it != DEFAULT_VERSION }
