@@ -23,6 +23,9 @@ For more information, see [References](#references)
 plugins {
     id("io.johnsonlee.sonatype-publish-plugin") version "1.2.0"
 }
+
+group = "..."
+version = "..."
 ```
 
 #### Legacy DSL
@@ -40,6 +43,9 @@ buildscript {
 }
 
 apply plugin: "io.johnsonlee.sonatype-publish-plugin"
+
+group = "..."
+version = "..."
 ```
 
 ### Configure env and properties
@@ -56,21 +62,21 @@ apply plugin: "io.johnsonlee.sonatype-publish-plugin"
 
 * `OSSRH_PACKAGE_GROUP`
 
-    The package group of [Sonatype](https://oss.sonatype.org/), e.g. `io.johnsonlee`
+    The package group of [Sonatype](https://oss.sonatype.org/), e.g. `io.johnsonlee`, searching from project properties by default, otherwise searching from system env
 
 #### Nexus
 
 * `NEXUS_URL`
 
-    The endpoint of Nexus service, e.g. http://nexus.johnsonlee.io/
+    The endpoint of Nexus service, e.g. http://nexus.johnsonlee.io/, searching from project properties by default, otherwise searching from system env
 
 * `NEXUS_USERNAME`
 
-    The account id of Nexus
+    The account id of Nexus, searching from project properties by default, otherwise searching from system env
 
 * `NEXUS_PASSWORD`
 
-    The account password of Nexus
+    The account password of Nexus, searching from project properties by default, otherwise searching from system env
 
 #### Signing
 
@@ -130,6 +136,18 @@ The following git configurations are be used for generating maven POM file, plea
     git remote add origin git@github.com:<username>/<repository>
     ```
 
+### Configure Project Info
+
+* `project.group`
+
+    The `groupId` of the publication, only the root project need to configured, subproejcts will inherit from the root project
+
+* `project.version`
+
+    The `version` of the publication, only the root project need to configured, subproejcts will inherit from the root project
+
+The `artifactId` of the publication is the `project.name` by default
+
 ### Configure License (optional)
 
 Add a license file (`LICENSE`, `LICENSE.txt`, `LICENSE.md` or `LICENSE.rst`) into project, then the license type will be recognized automatically.
@@ -156,3 +174,4 @@ After release complete, the artifacts will be synced to [Maven Central](https://
 - [OSSRH Requirements](https://central.sonatype.org/publish/requirements/)
 - [OSSRH Guide](https://central.sonatype.org/publish/publish-guide/)
 - [Generating A New GPG Key](https://docs.github.com/en/authentication/managing-commit-signature-verification/generating-a-new-gpg-key)
+
