@@ -21,7 +21,8 @@ class AndroidLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
                 val javadoc = tasks.register("javadocFor${variant.name.capitalize()}", Javadoc::class.java) {
                     dependsOn("dokkaHtml")
                     source(android.sourceSets["main"].java.srcDirs)
-                    classpath += files(android.bootClasspath + variant.javaCompileProvider.get().classpath)
+                    classpath += files(android.bootClasspath)
+                    classpath += variant.javaCompileProvider.get().classpath
                     exclude("**/R.html", "**/R.*.html", "**/index.html")
                 }
 
