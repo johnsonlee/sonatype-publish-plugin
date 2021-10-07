@@ -7,6 +7,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.repositories
 
 class AndroidLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
 
@@ -14,6 +15,10 @@ class AndroidLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
             publications: PublicationContainer,
             config: MavenPublication.() -> Unit
     ) {
+        repositories {
+            google()
+        }
+
         val android = extensions.getByName("android") as LibraryExtension
 
         publications.run {

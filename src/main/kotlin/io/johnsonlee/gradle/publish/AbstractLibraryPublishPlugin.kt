@@ -1,13 +1,10 @@
 package io.johnsonlee.gradle.publish
 
 import org.eclipse.jgit.api.Git
-import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Project.DEFAULT_VERSION
 import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.kotlin.dsl.maven
 
 abstract class AbstractLibraryPublishPlugin : Plugin<Project> {
 
@@ -38,10 +35,6 @@ abstract class AbstractLibraryPublishPlugin : Plugin<Project> {
                 configureDependencies()
 
                 publishing {
-                    repositories {
-                        maven("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-                    }
-
                     publications {
                         createMavenPublications(this) {
                             pom.withXml {
@@ -91,31 +84,8 @@ abstract class AbstractLibraryPublishPlugin : Plugin<Project> {
 
     fun MavenPublication.configure(project: Project) {
         artifactId = project.name
-        configureGroupId(project)
-        configureVersion(project)
-    }
-
-    fun MavenPublication.configureGroupId(project: Project) {
-        groupId = listOf(project.group, project.rootProject.group)
-                .map(Any::toString)
-                .filterNot { it == project.rootProject.name || it.startsWith("${project.rootProject.name}.") }
-                .firstOrNull(String::isNotBlank)
-                ?: throw GradleException("group id of $project has not been configured")
-    }
-
-    fun MavenPublication.configureVersion(project: Project) {
-        version = listOf(project.version, project.rootProject.version)
-                .map(Any::toString)
-                .firstOrNull { it != DEFAULT_VERSION }
-                ?: throw GradleException("version of $project has not been configured")
-    }
-
-    fun Project.configureDokka() {
-        extensions.findByName("kotlin")?.let {
-            plugins.run {
-                apply("org.jetbrains.dokka")
-            }
-        }
+        groupId = project.groupString
+        version = project.versionString
     }
 
 }

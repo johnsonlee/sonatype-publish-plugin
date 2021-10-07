@@ -20,6 +20,9 @@ class NexusPublishPluginFunctionalTest {
             tasks.register("greeting") {
                 println("Hello from plugin 'io.johnsonlee.sonatype-publish-plugin'")
             }
+
+            group = "io.johnsonlee.functional-test"
+            version = "1.0.0"
         """)
 
         val runner = GradleRunner.create()

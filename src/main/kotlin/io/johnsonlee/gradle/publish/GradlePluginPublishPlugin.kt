@@ -28,8 +28,8 @@ class GradlePluginPublishPlugin : AbstractLibraryPublishPlugin() {
             }
 
             withType<MavenPublication>().configureEach {
-                configureGroupId(project)
-                configureVersion(project)
+                groupId = groupString
+                version = versionString
                 artifact(javadocJar)
                 artifact(sourcesJar)
                 config.invoke(this)
