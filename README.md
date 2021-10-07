@@ -21,7 +21,7 @@ For more information, see [References](#references)
 
 ```kotlin
 plugins {
-    id("io.johnsonlee.sonatype-publish-plugin") version "1.2.0"
+    id("io.johnsonlee.sonatype-publish-plugin") version "1.3.0"
 }
 
 group = "..."
@@ -38,7 +38,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath("io.johnsonlee:sonatype-publish-plugin:1.2.0")
+        classpath("io.johnsonlee:sonatype-publish-plugin:1.3.0")
     }
 }
 
