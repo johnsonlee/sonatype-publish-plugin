@@ -13,9 +13,19 @@ For more information, see [References](#references)
 
 ## Getting Started
 
-### Configure buildscript classpath
+### Apply plugin
+
+#### Plugins DSL
 
 ```kotlin
+plugins {
+    id("io.johnsonlee.sonatype-publish-plugin") version "1.2.0"
+}
+```
+
+#### Legacy DSL
+
+```groovy
 buildscript {
     repositories {
         mavenCentral()
@@ -26,21 +36,7 @@ buildscript {
         classpath("io.johnsonlee:sonatype-publish-plugin:1.2.0")
     }
 }
-```
 
-### Apply plugin
-
-#### Plugins DSL
-
-```kotlin
-plugins {
-    id("io.johnsonlee.sonatype-publish-plugin")
-}
-```
-
-#### Legacy DSL
-
-```groovy
 apply plugin: "io.johnsonlee.sonatype-publish-plugin"
 ```
 
