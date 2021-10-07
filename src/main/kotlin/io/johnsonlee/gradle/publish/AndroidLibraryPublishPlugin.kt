@@ -23,18 +23,25 @@ class AndroidLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
 
         publications.run {
             android.libraryVariants.forEach { variant ->
-                val javadoc = tasks.register("javadocFor${variant.name.capitalize()}", Javadoc::class.java) {
-                    dependsOn("dokkaHtml")
-                    source(android.sourceSets["main"].java.srcDirs)
-                    classpath += files(android.bootClasspath)
-                    classpath += variant.javaCompileProvider.get().classpath
-                    exclude("**/R.html", "**/R.*.html", "**/index.html")
-                }
+                val javadocJar = if (extensions.findByName("kotlin") != null) {
+                    tasks.register("packageJavadocFor${variant.name.capitalize()}", Jar::class.java) {
+                        dependsOn("dokkaHtml")
+                        archiveClassifier.set("javadoc")
+                        from(tasks["dokkaHtml"])
+                    }
+                } else {
+                    val javadoc = tasks.register("javadocFor${variant.name.capitalize()}", Javadoc::class.java) {
+                        source(android.sourceSets["main"].java.srcDirs)
+                        classpath += files(android.bootClasspath)
+                        classpath += variant.javaCompileProvider.get().classpath
+                        exclude("**/R.html", "**/R.*.html", "**/index.html")
+                    }
 
-                val javadocJar = tasks.register("packageJavadocFor${variant.name.capitalize()}", Jar::class.java) {
-                    dependsOn(javadoc)
-                    archiveClassifier.set("javadoc")
-                    from(tasks["dokkaHtml"])
+                    tasks.register("packageJavadocFor${variant.name.capitalize()}", Jar::class.java) {
+                        dependsOn(javadoc)
+                        archiveClassifier.set("javadoc")
+                        from(tasks["dokkaHtml"])
+                    }
                 }
 
                 val sourcesJar = tasks.register("packageSourcesFor${variant.name.capitalize()}", Jar::class.java) {
