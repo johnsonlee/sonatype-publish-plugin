@@ -4,6 +4,8 @@ Due to Sonatype's strict validation rules, the publishing requirement must be sa
 
 For Java and Android library projects, the publishing configurations are very similar, but the configurations of creating publication are quite different, this gradle plugin is used to simplify the engineering complexity of publishing artifacts to [Sonatype](https://oss.sonatype.org/), developers don't need to write boilerplate publishing DSL for each project to satisfy Sonatype validation rules.
 
+This plugin not only support publishing artifacts to [Sonatype](https://oss.sonatype.org/), but also support publishing artifacts to private Nexus repository.
+
 ## Prerequisite
 
 * [Sonatype](https://oss.sonatype.org/) Account
@@ -42,22 +44,40 @@ apply plugin: "io.johnsonlee.sonatype-publish-plugin"
 
 ### Configure env and properties
 
+#### Sonatype
+
 * `OSSRH_USERNAME`
 
     The account id of [Sonatype](https://oss.sonatype.org/), searching from project properties by default, otherwise searching from system env
-    
+
 * `OSSRH_PASSWORD`
 
     the account password of [Sonatype](https://oss.sonatype.org/), searching from project properties by default, otherwise searching from system env
-    
+
 * `OSSRH_PACKAGE_GROUP`
 
     The package group of [Sonatype](https://oss.sonatype.org/), e.g. `io.johnsonlee`
-    
+
+#### Nexus
+
+* `NEXUS_URL`
+
+    The endpoint of Nexus service, e.g. http://nexus.johnsonlee.io/
+
+* `NEXUS_USERNAME`
+
+    The account id of Nexus
+
+* `NEXUS_PASSWORD`
+
+    The account password of Nexus
+
+#### Signing
+
 * `signing.keyId`
 
     The GPG key id (short format). In this example, the GPG key id is `71567BD2`
-    
+
     ```
     $ gpg --list-secret-keys --keyid-format=short
     /Users/johnsonlee/.gnupg/secring.gpg
@@ -74,9 +94,9 @@ apply plugin: "io.johnsonlee.sonatype-publish-plugin"
 * `signing.secretKeyRingFile`
 
     The secret key ring file, e.g. */Users/johnsonlee/.gnupg/secring.gpg*
-    
+
     > The best practice is putting the properties above into `~/.gradle/gradle.properties` 
-    > 
+    >
     > ```properties
     > OSSRH_USERNAME=johnsonlee
     > OSSRH_PASSWORD=*********
@@ -85,27 +105,27 @@ apply plugin: "io.johnsonlee.sonatype-publish-plugin"
     > signing.password=*********
     > signing.secretKeyRingFile=/Users/johnsonlee/.gnupg/secring.gpg
     > ```
-        
-### Configure git repository
 
-The following git configurations are be used for generating maven POM file
+### Configure Git Repository
+
+The following git configurations are be used for generating maven POM file, please skip if already done.
 
 * `user.name`
 
     ```bash
     git config user.name <username>
     ```
-  
+
 * `user.email`
 
     ```bash
     git config user.email <email-address>
     ```
-  
+
 * `remote.origin.url` (optional)
 
     The `remote.origin.url`  is available by default unless the git repository is created locally
-    
+
     ```bash
     git remote add origin git@github.com:<username>/<repository>
     ```
@@ -120,12 +140,13 @@ For more information on repository licenses, see "[Supported Licenses](https://d
 
 ```bash
 ./gradlew clean publishToSonatype
+./gradlew closeAndReleaseRepository
 ```
-   
-### Release Artifacts
+
+### Publish Artifacts to Nexus
 
 ```bash
-./gradlew closeAndReleaseRepository
+./gradlew clean publish
 ```
 
 After release complete, the artifacts will be synced to [Maven Central](https://mvnrepository.com/repos/central) automatically
