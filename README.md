@@ -163,13 +163,13 @@ For more information on repository licenses, see "[Supported Licenses](https://d
 
 ### Publish Artifacts to Nexus
 
-#### For Java/Kotlin Project
+#### Java/Kotlin Project
 
 ```bash
 ./gradlew clean publish
 ```
 
-#### For Android Project
+#### Android Project
 
 For Android projects,  using `-x` to disable publication tasks for *debug* variants:
 
