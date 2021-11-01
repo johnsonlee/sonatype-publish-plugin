@@ -163,8 +163,18 @@ For more information on repository licenses, see "[Supported Licenses](https://d
 
 ### Publish Artifacts to Nexus
 
+#### For Java/Kotlin Project
+
 ```bash
 ./gradlew clean publish
+```
+
+#### For Android Project
+
+For Android projects,  using `-x` to disable publication tasks for *debug* variants:
+
+```bash
+./gradlew clean publish -x publishDebug
 ```
 
 After release complete, the artifacts will be synced to [Maven Central](https://mvnrepository.com/repos/central) automatically
