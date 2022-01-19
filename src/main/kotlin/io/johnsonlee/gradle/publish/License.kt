@@ -61,7 +61,11 @@ sealed class License(
         private val LICENSES = License::class.sealedSubclasses.mapNotNull(KClass<out License>::objectInstance).filterNot(License::family)
 
         fun of(file: File): License? {
-            FILENAMES.firstOrNull { it.equals(file.name, true) } ?: return null
+            FILENAMES.takeIf {
+                file.isFile
+            }?.firstOrNull {
+                it.equals(file.name, true)
+            } ?: return null
 
             val rt1 = RawText(file)
             val differ = HistogramDiff()
