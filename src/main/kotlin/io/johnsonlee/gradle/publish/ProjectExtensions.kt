@@ -11,6 +11,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.kotlin.dsl.repositories
 import org.gradle.plugins.signing.SigningExtension
 import java.io.File
+import java.net.URI
 
 val Project.hasKotlinPlugin
     get() = plugins.hasPlugin("org.jetbrains.kotlin.jvm")
@@ -94,6 +95,7 @@ fun Project.configureNexusStaging() {
     val OSSRH_USERNAME: String? by vars
     val OSSRH_PASSWORD: String? by vars
     val OSSRH_PACKAGE_GROUP: String? by vars
+    val OSSRH_SERVER_URL: String? by vars
 
     if (OSSRH_USERNAME == null || OSSRH_PASSWORD == null || OSSRH_PACKAGE_GROUP == null) {
         return
@@ -102,6 +104,7 @@ fun Project.configureNexusStaging() {
     plugins.apply("io.codearte.nexus-staging")
 
     extensions.configure<NexusStagingExtension>("nexusStaging") {
+        serverUrl = (OSSRH_SERVER_URL?.takeIf(String::isNotBlank)?.let(::URI) ?: SONATYPE_SERVER).resolve("/service/local/").toString()
         packageGroup = OSSRH_PACKAGE_GROUP
         username = OSSRH_USERNAME
         password = OSSRH_PASSWORD
