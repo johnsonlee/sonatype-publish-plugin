@@ -5,6 +5,8 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.kotlin.dsl.maven
 import java.net.URI
 
+internal const val SONATYPE_SERVER = "https://s01.oss.sonatype.org/"
+
 fun RepositoryHandler.configureNexus(project: Project, repository: String = "/content/repositories/public") {
     val NEXUS_URL: String? by project.vars
     val NEXUS_USERNAME: String? by project.vars
@@ -22,5 +24,7 @@ fun RepositoryHandler.configureNexus(project: Project, repository: String = "/co
 }
 
 fun RepositoryHandler.configureSonatype(project: Project) {
-    maven("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+    val OSSRH_SERVER_URL: String? by project.vars
+    val serverUrl = OSSRH_SERVER_URL?.takeIf(String::isNotBlank) ?: SONATYPE_SERVER
+    maven("${serverUrl}${if (serverUrl.endsWith('/')) "" else "/"}service/local/staging/deploy/maven2/")
 }
