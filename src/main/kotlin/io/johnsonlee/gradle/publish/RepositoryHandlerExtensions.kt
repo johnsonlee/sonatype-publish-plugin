@@ -2,25 +2,29 @@ package io.johnsonlee.gradle.publish
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
-import org.gradle.kotlin.dsl.maven
 import java.net.URI
 
-fun RepositoryHandler.configureNexus(project: Project, repository: String = "/content/repositories/public") {
-    val NEXUS_URL: String? by project.vars
-    val NEXUS_USERNAME: String? by project.vars
-    val NEXUS_PASSWORD: String? by project.vars
+internal val SONATYPE_SERVER = URI("https://oss.sonatype.org/")
 
-    if (NEXUS_URL != null && NEXUS_USERNAME != null && NEXUS_PASSWORD != null) {
+fun RepositoryHandler.configureNexus(project: Project, repository: String = "/content/repositories/public") {
+    if (project.NEXUS_URL != null && project.NEXUS_USERNAME != null && project.NEXUS_PASSWORD != null) {
+        val nexusUrl = project.NEXUS_URL!!.resolve(repository)
         maven {
-            url = URI(NEXUS_URL).resolve(repository)
+            url = nexusUrl
             credentials {
-                username = NEXUS_USERNAME
-                password = NEXUS_PASSWORD
+                username = project.NEXUS_USERNAME
+                password = project.NEXUS_PASSWORD
             }
         }
+        project.logger.info("Configuring nexus {url=`${nexusUrl}`} completed")
+    } else {
+        project.logger.warn("Configuring nexus skipped: `NEXUS_URL` or `NEXUS_USERNAME` or `NEXUS_PASSWORD` not found")
     }
 }
 
 fun RepositoryHandler.configureSonatype(project: Project) {
-    maven("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+    val sonatype = maven {
+        url = project.OSSRH_SERVER_URL.resolve("/service/local/staging/deploy/maven2/")
+    }
+    project.logger.info("Configuring sonatype repository {url=`${sonatype.url}`} completed")
 }

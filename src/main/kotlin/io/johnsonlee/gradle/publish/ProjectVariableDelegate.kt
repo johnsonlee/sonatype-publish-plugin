@@ -16,10 +16,11 @@ class ProjectVariableDelegate private constructor(
         ConcurrentHashMap<String, String?>().withDefault { null }
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): String? = cache.getOrPutIfNotNull(property.name) {
-        project.findProperty(property.name)?.toString()?.takeIf(String::isNotBlank)
-                ?: System.getenv(property.name)?.takeIf(String::isNotBlank)
+    operator fun get(name: String): String? = cache.getOrPutIfNotNull(name) {
+        project.findProperty(name)?.toString()?.takeIf(String::isNotBlank) ?: System.getenv(name)?.takeIf(String::isNotBlank)
     }
+
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): String? = get(property.name)
 
 }
 
