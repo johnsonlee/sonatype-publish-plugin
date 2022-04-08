@@ -21,7 +21,7 @@ For more information, see [References](#references)
 
 ```kotlin
 plugins {
-    id("io.johnsonlee.sonatype-publish-plugin") version "1.3.0"
+    id("io.johnsonlee.sonatype-publish-plugin") version "1.5.6"
 }
 
 group = "..."
@@ -38,7 +38,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath("io.johnsonlee:sonatype-publish-plugin:1.3.0")
+        classpath("io.johnsonlee:sonatype-publish-plugin:1.5.6")
     }
 }
 
@@ -157,8 +157,7 @@ For more information on repository licenses, see "[Supported Licenses](https://d
 ### Publish Artifacts to Sonatype
 
 ```bash
-./gradlew clean publishToSonatype
-./gradlew closeAndReleaseRepository
+./gradlew initializeSonatypeStagingRepository publishToSonatype closeAndReleaseRepository
 ```
 
 ### Publish Artifacts to Nexus
