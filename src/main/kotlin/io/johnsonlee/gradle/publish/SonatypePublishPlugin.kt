@@ -22,7 +22,6 @@ class SonatypePublishPlugin : Plugin<Project> {
 
             // for sonatype
             configureNexusPublish()
-            configureSigning()
 
             // for nexus
             configureMavenRepository()
@@ -41,6 +40,8 @@ class SonatypePublishPlugin : Plugin<Project> {
                     hasJavaLibraryPlugin -> plugins.apply(JavaLibraryPublishPlugin::class.java)
                 }
             }
+
+            configureSigning()
         }
     }
 
