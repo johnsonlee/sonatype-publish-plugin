@@ -15,42 +15,27 @@ For more information, see [References](#references)
 
 ## Getting Started
 
-### Apply plugin
-
-#### Plugins DSL
-
 ```kotlin
 plugins {
-    id("io.johnsonlee.sonatype-publish-plugin") version "1.5.6"
+    kotlin("jvm")
+    id("io.johnsonlee.sonatype-publish-plugin") version "1.6.1"
 }
 
-group = "..."
-version = "..."
+group = "<your-group-id>"
+version = "1.0.0"
 ```
 
-#### Legacy DSL
+Then, execute publish tasks:
 
-```groovy
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath("io.johnsonlee:sonatype-publish-plugin:1.5.6")
-    }
-}
-
-apply plugin: "io.johnsonlee.sonatype-publish-plugin"
-
-group = "..."
-version = "..."
+```bash
+./gradlew publishToMavenLocal
 ```
 
-### Configure env and properties
+## Configuring Environment Variables
 
-#### Sonatype
+To publish artifacts to remote maven repository, additional configurations are quired.
+
+### Sonatype
 
 * `OSSRH_USERNAME`
 
@@ -64,7 +49,7 @@ version = "..."
 
     The package group of [Sonatype](https://oss.sonatype.org/), e.g. `io.johnsonlee`, searching from project properties by default, otherwise searching from system env
 
-#### Nexus
+### Nexus
 
 * `NEXUS_URL`
 
@@ -78,7 +63,7 @@ version = "..."
 
     The account password of Nexus, searching from project properties by default, otherwise searching from system env
 
-#### Signing
+## Configuring Signing Properties
 
 * `signing.keyId`
 
@@ -112,7 +97,7 @@ version = "..."
     > signing.secretKeyRingFile=/Users/johnsonlee/.gnupg/secring.gpg
     > ```
 
-### Configure Git Repository
+## Configuring Git Repository
 
 The following git configurations are be used for generating maven POM file, please skip if already done.
 
