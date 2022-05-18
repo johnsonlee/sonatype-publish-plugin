@@ -24,4 +24,4 @@ jobs:
         java-version: '8'
 
     - name: build
-      run: ./gradlew build -S --no-daemon
+      run: ./gradlew check -S --no-daemon

@@ -9,6 +9,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.the
+import org.gradle.util.GradleVersion
 
 open class JavaLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
 
@@ -32,8 +33,13 @@ open class JavaLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
 
                 configure(project)
                 from(components["java"])
-                artifact(javadocJar)
-                artifact(sourcesJar)
+                if (GradleVersion.current() >= GRADLE_6_6) {
+                    artifact(javadocJar)
+                    artifact(sourcesJar)
+                } else {
+                    artifact(javadocJar.get())
+                    artifact(sourcesJar.get())
+                }
                 config.invoke(this)
             }
         }
