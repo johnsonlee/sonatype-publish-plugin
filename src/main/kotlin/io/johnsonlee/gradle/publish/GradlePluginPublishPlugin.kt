@@ -8,6 +8,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
+import org.gradle.util.GradleVersion
 
 class GradlePluginPublishPlugin : AbstractLibraryPublishPlugin() {
 
@@ -30,8 +31,13 @@ class GradlePluginPublishPlugin : AbstractLibraryPublishPlugin() {
             withType<MavenPublication>().configureEach {
                 groupId = groupString
                 version = versionString
-                artifact(javadocJar)
-                artifact(sourcesJar)
+                if (GradleVersion.current() >= GRADLE_6_6) {
+                    artifact(javadocJar)
+                    artifact(sourcesJar)
+                } else {
+                    artifact(javadocJar.get())
+                    artifact(sourcesJar.get())
+                }
                 config.invoke(this)
             }
         }
