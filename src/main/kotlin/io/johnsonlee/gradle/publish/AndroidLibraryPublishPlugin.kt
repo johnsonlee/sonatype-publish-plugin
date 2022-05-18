@@ -7,7 +7,9 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.repositories
+import org.gradle.util.GradleVersion
 
 class AndroidLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
 
@@ -49,11 +51,16 @@ class AndroidLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
                     from(android.sourceSets["main"].java.srcDirs)
                 }
 
-                create(variant.name, MavenPublication::class.java) {
+                register(variant.name, MavenPublication::class) {
                     configure(project)
                     from(components[variant.name])
-                    artifact(javadocJar)
-                    artifact(sourcesJar)
+                    if (GradleVersion.current() >= GRADLE_6_6) {
+                        artifact(javadocJar)
+                        artifact(sourcesJar)
+                    } else {
+                        artifact(javadocJar.get())
+                        artifact(sourcesJar.get())
+                    }
                     config.invoke(this)
                 }
             }

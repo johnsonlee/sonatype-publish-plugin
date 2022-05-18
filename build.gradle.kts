@@ -34,6 +34,7 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
+    testImplementation("com.didiglobal.booster:booster-kotlinx:4.8.0")
 }
 
 gradlePlugin {
