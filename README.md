@@ -28,7 +28,7 @@ version = "1.0.0"
 Then, execute publish tasks:
 
 ```bash
-./gradlew publishToMavenLocal
+./gradlew publishToMavenLocal -x signMavenJavaPublication
 ```
 
 ## Configuring Environment Variables
@@ -121,7 +121,7 @@ The following git configurations are be used for generating maven POM file, plea
     git remote add origin git@github.com:<username>/<repository>
     ```
 
-### Configure Project Info
+## Configuring Project Info
 
 * `project.group`
 
@@ -133,27 +133,31 @@ The following git configurations are be used for generating maven POM file, plea
 
 The `artifactId` of the publication is the `project.name` by default
 
-### Configure License (optional)
+## Configuring License (optional)
 
 Add a license file (`LICENSE`, `LICENSE.txt`, `LICENSE.md` or `LICENSE.rst`) into project, then the license type will be recognized automatically.
 
 For more information on repository licenses, see "[Supported Licenses](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository#searching-github-by-license-type)"
 
-### Publish Artifacts to Sonatype
+## Publishing Artifacts to Sonatype
 
 ```bash
-./gradlew initializeSonatypeStagingRepository publishToSonatype closeAndReleaseRepository
+./gradlew initializeSonatypeStagingRepository publishToSonatype
 ```
 
-### Publish Artifacts to Nexus
+```bash
+./gradlew closeAndReleaseRepository
+```
 
-#### Java/Kotlin Project
+## Publishing Artifacts to Nexus
+
+### Java/Kotlin Project
 
 ```bash
 ./gradlew clean publish
 ```
 
-#### Android Project
+### Android Project
 
 For Android projects,  using `-x` to disable publication tasks for *debug* variants:
 
