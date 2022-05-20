@@ -114,6 +114,97 @@ class KotlinLibraryFunctionalTest {
         val result = publishToMavenLocal("6.9")
         assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
     }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 6_9_1`() {
+        val result = publishToMavenLocal("6.9.1")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 6_9_2`() {
+        val result = publishToMavenLocal("6.9.2")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_0`() {
+        val result = publishToMavenLocal("7.0")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_0_1`() {
+        val result = publishToMavenLocal("7.0.1")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_0_2`() {
+        val result = publishToMavenLocal("7.0.2")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_1`() {
+        val result = publishToMavenLocal("7.1")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_1_1`() {
+        val result = publishToMavenLocal("7.1.1")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_2`() {
+        val result = publishToMavenLocal("7.2")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_3`() {
+        val result = publishToMavenLocal("7.3")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_3_1`() {
+        val result = publishToMavenLocal("7.3.1")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_3_2`() {
+        val result = publishToMavenLocal("7.3.2")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_3_3`() {
+        val result = publishToMavenLocal("7.3.3")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_4`() {
+        val result = publishToMavenLocal("7.4")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_4_1`() {
+        val result = publishToMavenLocal("7.4.1")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
+    @Test
+    fun `publish kotlin library to maven local with gradle 7_4_2`() {
+        val result = publishToMavenLocal("7.4.2")
+        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
+    }
+
     private fun publishToMavenLocal(gradleVersion: String): BuildResult {
         val projectDir = createTempDir(directory = tmp).apply {
             file("settings.gradle.kts").writeText("")
