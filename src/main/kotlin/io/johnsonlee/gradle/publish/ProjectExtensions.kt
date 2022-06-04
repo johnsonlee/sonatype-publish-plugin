@@ -10,7 +10,6 @@ import org.gradle.api.Project.DEFAULT_VERSION
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.kotlin.dsl.repositories
 import org.gradle.plugins.signing.SigningExtension
-import java.io.File
 import java.net.URI
 
 internal val SIGNING_PROPERTIES = arrayOf("signing.keyId", "signing.password", "signing.secretKeyRingFile")
@@ -59,7 +58,7 @@ val Project.useSonatype: Boolean
     get() = OSSRH_USERNAME != null && OSSRH_PASSWORD != null && OSSRH_PACKAGE_GROUP != null && hasSigningProperties
 
 val Project.git: Repository
-    get() = FileRepositoryBuilder().setGitDir(File(rootDir, ".git")).findGitDir().build()
+    get() = FileRepositoryBuilder().findGitDir(rootDir).setMustExist(useSonatype).build()
 
 val Project.license: License?
     get() = rootDir.listFiles()?.asSequence()?.mapNotNull(License.Companion::of)?.firstOrNull()
@@ -88,12 +87,12 @@ fun Project.configureDokka() {
             apply("org.jetbrains.dokka")
         }
     }
-    logger.info("Configuring `dokka` completed")
+    logger.info("[${this}] Configuring `dokka` completed")
 }
 
 fun Project.configureSigning() {
     if (!hasSigningProperties) {
-        logger.warn("Configuring `signing` skipped: ${SIGNING_PROPERTIES.joinToString(" or ") { "`${it}`" }} not found")
+        logger.warn("[${this}] Configuring `signing` skipped: ${SIGNING_PROPERTIES.joinToString(" or ") { "`${it}`" }} not found")
         return
     }
 
@@ -107,12 +106,12 @@ fun Project.configureSigning() {
         }
     }
 
-    logger.info("Configuring `signing` completed")
+    logger.info("[${this}] Configuring `signing` completed")
 }
 
 fun Project.configureNexusStaging() {
     if (OSSRH_USERNAME == null || OSSRH_PASSWORD == null || OSSRH_PACKAGE_GROUP == null) {
-        logger.warn("Configuring `nexusStaging` skipped: `OSSRH_USERNAME` or `OSSRH_PASSWORD` or `OSSRH_PACKAGE_GROUP` not found")
+        logger.warn("[${this}] Configuring `nexusStaging` skipped: `OSSRH_USERNAME` or `OSSRH_PASSWORD` or `OSSRH_PACKAGE_GROUP` not found")
         return
     }
 
@@ -129,12 +128,12 @@ fun Project.configureNexusStaging() {
         delayBetweenRetriesInMillis = 3000
     }
 
-    logger.info("Configuring `nexusStaging` {serverUrl=`${stagingUrl}`, packageGroup=`${OSSRH_PACKAGE_GROUP}`} completed")
+    logger.info("[${this}] Configuring `nexusStaging` {serverUrl=`${stagingUrl}`, packageGroup=`${OSSRH_PACKAGE_GROUP}`} completed")
 }
 
 fun Project.configureNexusPublish() {
     if (OSSRH_USERNAME == null || OSSRH_PASSWORD == null) {
-        logger.warn("Configuring `nexusPublishing` skipped: `OSSRH_USERNAME` or `OSSRH_PASSWORD` not found")
+        logger.warn("[${this}] Configuring `nexusPublishing` skipped: `OSSRH_USERNAME` or `OSSRH_PASSWORD` not found")
         return
     }
 
@@ -149,7 +148,7 @@ fun Project.configureNexusPublish() {
         }
     }
 
-    logger.info("Configuring `nexusPublishing` completed")
+    logger.info("[${this}] Configuring `nexusPublishing` completed")
 }
 
 fun Project.configureMavenRepository() {
