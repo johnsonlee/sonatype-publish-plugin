@@ -16,9 +16,9 @@ fun RepositoryHandler.configureNexus(project: Project, repository: String = "/co
                 password = project.NEXUS_PASSWORD
             }
         }
-        project.logger.info("Configuring nexus {url=`${nexusUrl}`} completed")
+        project.logger.info("[${project}] Configuring nexus {url=`${nexusUrl}`} completed")
     } else {
-        project.logger.warn("Configuring nexus skipped: `NEXUS_URL` or `NEXUS_USERNAME` or `NEXUS_PASSWORD` not found")
+        project.logger.warn("[${project}] Configuring nexus skipped: `NEXUS_URL` or `NEXUS_USERNAME` or `NEXUS_PASSWORD` not found")
     }
 }
 
@@ -26,5 +26,5 @@ fun RepositoryHandler.configureSonatype(project: Project) {
     val sonatype = maven {
         url = project.OSSRH_SERVER_URL.resolve("/service/local/staging/deploy/maven2/")
     }
-    project.logger.info("Configuring sonatype repository {url=`${sonatype.url}`} completed")
+    project.logger.info("[${project}] Configuring sonatype repository {url=`${sonatype.url}`} completed")
 }
