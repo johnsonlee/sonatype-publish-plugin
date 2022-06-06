@@ -1,5 +1,6 @@
 import org.gradle.api.Project.DEFAULT_VERSION
-import org.gradle.kotlin.dsl.*
+import io.github.gradlenexus.publishplugin.NexusPublishExtension
+import java.time.Duration
 
 plugins {
     `java-gradle-plugin`
@@ -8,8 +9,7 @@ plugins {
     `signing`
     kotlin("jvm") version embeddedKotlinVersion
     id("org.jetbrains.dokka") version "1.4.32"
-    id("io.codearte.nexus-staging") version "0.22.0"
-    id("de.marcphilipp.nexus-publish") version "0.4.0"
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
 group = "io.johnsonlee"
@@ -26,8 +26,7 @@ dependencies {
     implementation(gradleApi())
     implementation(platform(kotlin("bom")))
     implementation(kotlin("stdlib"))
-    implementation("de.marcphilipp.gradle:nexus-publish-plugin:0.4.0")
-    implementation("io.codearte.nexus-staging:io.codearte.nexus-staging.gradle.plugin:0.22.0")
+    implementation("io.github.gradle-nexus:publish-plugin:1.1.0")
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.4.32")
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
     compileOnly("com.android.tools.build:gradle:4.0.0")
@@ -61,15 +60,20 @@ val javadocJar by tasks.registering(Jar::class) {
     from(tasks["dokkaHtml"])
 }
 
-val OSSRH_USERNAME = "${project.properties["OSSRH_USERNAME"] ?: System.getenv("OSSRH_USERNAME")}"
-val OSSRH_PASSWORD = "${project.properties["OSSRH_PASSWORD"] ?: System.getenv("OSSRH_PASSWORD")}"
-
-nexusPublishing {
+extensions.configure<NexusPublishExtension> {
+    packageGroup.set(findProperty("OSSRH_PACKAGE_GROUP")?.toString() ?: System.getenv("OSSRH_PACKAGE_GROUP"))
     repositories {
         sonatype {
-            username.set(OSSRH_USERNAME)
-            password.set(OSSRH_PASSWORD)
+            username.set(findProperty("OSSRH_USERNAME")?.toString() ?: System.getenv("OSSRH_USERNAME"))
+            password.set(findProperty("OSSRH_PASSWORD")?.toString() ?: System.getenv("OSSRH_PASSWORD"))
+            stagingProfileId.set(findProperty("OSSRH_STAGING_PROFILE_ID")?.toString() ?: System.getenv("OSSRH_STAGING_PROFILE_ID"))
         }
+    }
+    clientTimeout.set(Duration.ofSeconds(300))
+    connectTimeout.set(Duration.ofSeconds(60))
+    transitionCheckOptions {
+        maxRetries.set(3000)
+        delayBetween.set(Duration.ofMillis(3000))
     }
 }
 
@@ -125,15 +129,6 @@ publishing {
             }
         }
     }
-}
-
-
-nexusStaging {
-    packageGroup = "io.johnsonlee"
-    username = OSSRH_USERNAME
-    password = OSSRH_PASSWORD
-    numberOfRetries = 50
-    delayBetweenRetriesInMillis = 3000
 }
 
 val functionalTestSourceSet = sourceSets.create("functionalTest") {

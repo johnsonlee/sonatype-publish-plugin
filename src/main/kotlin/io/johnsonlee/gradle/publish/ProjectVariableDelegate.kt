@@ -17,7 +17,9 @@ class ProjectVariableDelegate private constructor(
     }
 
     operator fun get(name: String): String? = cache.getOrPutIfNotNull(name) {
-        project.findProperty(name)?.toString()?.takeIf(String::isNotBlank) ?: System.getenv(name)?.takeIf(String::isNotBlank)
+        project.findProperty(name)?.toString()?.takeIf(String::isNotBlank)
+                ?: System.getProperty(name)?.takeIf(String::isNotBlank)
+                ?: System.getenv(name)?.takeIf(String::isNotBlank)
     }
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): String? = get(property.name)

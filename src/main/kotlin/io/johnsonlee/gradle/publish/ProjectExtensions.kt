@@ -1,16 +1,17 @@
 package io.johnsonlee.gradle.publish
 
-import de.marcphilipp.gradle.nexus.NexusPublishExtension
-import io.codearte.gradle.nexus.NexusStagingExtension
+import io.github.gradlenexus.publishplugin.NexusPublishExtension
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Project.DEFAULT_VERSION
+import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.publish.PublishingExtension
-import org.gradle.kotlin.dsl.repositories
+import org.gradle.kotlin.dsl.configure
 import org.gradle.plugins.signing.SigningExtension
 import java.net.URI
+import java.time.Duration
 
 internal val SIGNING_PROPERTIES = arrayOf("signing.keyId", "signing.password", "signing.secretKeyRingFile")
 
@@ -35,27 +36,55 @@ val Project.hasSigningProperties
 
 val Project.OSSRH_USERNAME: String?
     get() = ProjectVariableDelegate.of(this)["OSSRH_USERNAME"]
+            ?: findProperty("sonatypeUsername")?.toString()?.takeIf(String::isNotBlank)
 
 val Project.OSSRH_PASSWORD: String?
     get() = ProjectVariableDelegate.of(this)["OSSRH_PASSWORD"]
+            ?: findProperty("sonatypePassword")?.toString()?.takeIf(String::isNotBlank)
 
 val Project.OSSRH_PACKAGE_GROUP: String?
     get() = ProjectVariableDelegate.of(this)["OSSRH_PACKAGE_GROUP"]
+            ?: findProperty("sonatypePackageGroup")?.toString()?.takeIf(String::isNotBlank)
 
-val Project.OSSRH_SERVER_URL: URI
-    get() = ProjectVariableDelegate.of(this)["OSSRH_SERVER_URL"]?.let(::URI) ?: SONATYPE_SERVER
+val Project.OSSRH_STAGING_PROFILE_ID: String?
+    get() = ProjectVariableDelegate.of(this)["OSSRH_STAGING_PROFILE_ID"]
+            ?: findProperty("sonatypeStagingProfileId")?.toString()?.takeIf(String::isNotBlank)
+
+val Project.OSSRH_URL: URI?
+    get() = (ProjectVariableDelegate.of(this)["OSSRH_URL"]
+            ?: findProperty("sonatypeUrl")?.toString()?.takeIf(String::isNotBlank))?.let(::URI)
+
+val Project.OSSRH_SNAPSHOT_REPOSITORY_URL: URI?
+    get() = (ProjectVariableDelegate.of(this)["OSSRH_SNAPSHOT_REPOSITORY_URL"]
+            ?: findProperty("sonatypeSnapshotRepositoryUrl")?.toString()?.takeIf(String::isNotBlank))?.let(::URI)
 
 val Project.NEXUS_URL: URI?
-    get() = ProjectVariableDelegate.of(this)["NEXUS_URL"]?.let(::URI)
+    get() = (ProjectVariableDelegate.of(this)["NEXUS_URL"]
+            ?: findProperty("nexusUrl")?.toString()?.takeIf(String::isNotBlank))?.let(::URI)
+
+val Project.NEXUS_SNAPSHOT_REPOSITORY_URL: URI?
+    get() = (ProjectVariableDelegate.of(this)["NEXUS_SNAPSHOT_REPOSITORY_URL"]
+            ?: findProperty("nexusSnapshotRepositoryUrl")?.toString()?.takeIf(String::isNotBlank))?.let(::URI)
 
 val Project.NEXUS_USERNAME: String?
     get() = ProjectVariableDelegate.of(this)["NEXUS_USERNAME"]
+            ?: findProperty("nexusUsername")?.toString()?.takeIf(String::isNotBlank)
 
 val Project.NEXUS_PASSWORD: String?
     get() = ProjectVariableDelegate.of(this)["NEXUS_PASSWORD"]
+            ?: findProperty("nexusPassword")?.toString()?.takeIf(String::isNotBlank)
 
 val Project.useSonatype: Boolean
-    get() = OSSRH_USERNAME != null && OSSRH_PASSWORD != null && OSSRH_PACKAGE_GROUP != null && hasSigningProperties
+    get() = OSSRH_USERNAME != null
+            && OSSRH_PASSWORD != null
+            && OSSRH_PACKAGE_GROUP != null
+            && OSSRH_STAGING_PROFILE_ID != null
+            && hasSigningProperties
+
+val Project.useNexus: Boolean
+    get() = NEXUS_URL != null
+            && NEXUS_USERNAME != null
+            && NEXUS_PASSWORD != null
 
 val Project.git: Repository
     get() = FileRepositoryBuilder().findGitDir(rootDir).setMustExist(useSonatype).build()
@@ -109,67 +138,51 @@ fun Project.configureSigning() {
     logger.info("[${this}] Configuring `signing` completed")
 }
 
-fun Project.configureNexusStaging() {
-    if (OSSRH_USERNAME == null || OSSRH_PASSWORD == null || OSSRH_PACKAGE_GROUP == null) {
-        logger.warn("[${this}] Configuring `nexusStaging` skipped: `OSSRH_USERNAME` or `OSSRH_PASSWORD` or `OSSRH_PACKAGE_GROUP` not found")
-        return
+fun Project.configureNexusPublishing() {
+    if (!plugins.hasPlugin("io.github.gradle-nexus.publish-plugin")) {
+        plugins.apply("io.github.gradle-nexus.publish-plugin")
     }
 
-    plugins.apply("io.codearte.nexus-staging")
+    extensions.configure<NexusPublishExtension> {
+        clientTimeout.set(Duration.ofSeconds(300))
+        connectTimeout.set(Duration.ofSeconds(60))
 
-    val stagingUrl = OSSRH_SERVER_URL.resolve("/service/local/").toString()
-
-    extensions.configure<NexusStagingExtension>("nexusStaging") {
-        serverUrl = stagingUrl
-        packageGroup = OSSRH_PACKAGE_GROUP
-        username = OSSRH_USERNAME
-        password = OSSRH_PASSWORD
-        numberOfRetries = 50
-        delayBetweenRetriesInMillis = 3000
-    }
-
-    logger.info("[${this}] Configuring `nexusStaging` {serverUrl=`${stagingUrl}`, packageGroup=`${OSSRH_PACKAGE_GROUP}`} completed")
-}
-
-fun Project.configureNexusPublish() {
-    if (OSSRH_USERNAME == null || OSSRH_PASSWORD == null) {
-        logger.warn("[${this}] Configuring `nexusPublishing` skipped: `OSSRH_USERNAME` or `OSSRH_PASSWORD` not found")
-        return
-    }
-
-    plugins.apply("de.marcphilipp.nexus-publish")
-
-    extensions.configure<NexusPublishExtension>("nexusPublishing") {
-        repositories {
-            sonatype {
-                username.set(OSSRH_USERNAME)
-                password.set(OSSRH_PASSWORD)
-            }
+        transitionCheckOptions {
+            maxRetries.set(3000)
+            delayBetween.set(Duration.ofMillis(3000))
         }
-    }
 
-    logger.info("[${this}] Configuring `nexusPublishing` completed")
-}
-
-fun Project.configureMavenRepository() {
-    repositories {
-        configureNexus(project)
-    }
-}
-
-fun Project.configurePublishRepository() {
-    afterEvaluate {
-        publishing {
-            repositories {
-                if (useSonatype) {
-                    configureSonatype(project)
-                } else {
-                    configureNexus(project, if (versionString.endsWith("SNAPSHOT")) {
-                        "/content/repositories/snapshot"
-                    } else {
-                        "/content/repositories/releases"
-                    })
+        repositories {
+            if (useSonatype) {
+                packageGroup.set(OSSRH_PACKAGE_GROUP)
+                try {
+                    named("sonatype")
+                } catch (e: UnknownDomainObjectException) {
+                    sonatype {
+                        username.set(OSSRH_USERNAME)
+                        password.set(OSSRH_PASSWORD)
+                        stagingProfileId.set(OSSRH_STAGING_PROFILE_ID)
+                        OSSRH_URL?.let(nexusUrl::set)
+                        OSSRH_SNAPSHOT_REPOSITORY_URL?.let(snapshotRepositoryUrl::set)
+                    }
+                    logger.info("[${this}] Configuring `nexusPublishing` with Sonatype complete")
                 }
+            } else if (useNexus) {
+                try {
+                    named("nexus")
+                } catch (e: UnknownDomainObjectException) {
+                    create("nexus") {
+                        username.set(NEXUS_USERNAME)
+                        password.set(NEXUS_PASSWORD)
+                        NEXUS_URL?.let(nexusUrl::set)
+                        NEXUS_SNAPSHOT_REPOSITORY_URL?.let(snapshotRepositoryUrl::set) ?: NEXUS_URL?.let { baseUrl ->
+                            snapshotRepositoryUrl.set(baseUrl.resolve("/content/repositories/snapshots/"))
+                        }
+                        logger.info("[${this}] Configuring `nexusPublishing` with Nexus {nexusUrl=${nexusUrl}, snapshotRepositoryUrl=${snapshotRepositoryUrl.get()}} complete")
+                    }
+                }
+            } else {
+                logger.warn("[${this}] Configuring `nexusPublishing` skipped, neither Sonatype nor Nexus environment variables are configured")
             }
         }
     }

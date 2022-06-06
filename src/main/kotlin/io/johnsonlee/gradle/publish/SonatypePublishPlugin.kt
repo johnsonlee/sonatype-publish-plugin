@@ -14,23 +14,15 @@ class SonatypePublishPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         project.rootProject.run {
-            configureNexusStaging()
+            configureNexusPublishing()
         }
 
         project.run {
             plugins.apply("maven-publish")
 
-            // for sonatype
-            configureNexusPublish()
-
-            // for nexus
-            configureMavenRepository()
-
             repositories {
                 mavenCentral()
             }
-
-            configurePublishRepository()
 
             afterEvaluate {
                 when {
