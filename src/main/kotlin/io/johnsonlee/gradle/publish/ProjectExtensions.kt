@@ -151,12 +151,6 @@ fun Project.configureNexusPublish() {
     logger.info("[${this}] Configuring `nexusPublishing` completed")
 }
 
-fun Project.configureMavenRepository() {
-    repositories {
-        configureNexus(project)
-    }
-}
-
 fun Project.configurePublishRepository() {
     afterEvaluate {
         publishing {
