@@ -23,9 +23,6 @@ class SonatypePublishPlugin : Plugin<Project> {
             // for sonatype
             configureNexusPublish()
 
-            // for nexus
-            configureMavenRepository()
-
             repositories {
                 mavenCentral()
             }
@@ -40,6 +37,9 @@ class SonatypePublishPlugin : Plugin<Project> {
                     hasJavaLibraryPlugin -> plugins.apply(JavaLibraryPublishPlugin::class.java)
                 }
             }
+
+            // for nexus
+            configureMavenRepository()
 
             configureSigning()
         }
