@@ -162,7 +162,7 @@ For more information on repository licenses, see "[Supported Licenses](https://d
 For Android projects,  using `-x` to disable publication tasks for *debug* variants:
 
 ```bash
-./gradlew clean publish -x publishDebug
+./gradlew clean publish -x publishDebugPublicationToMavenRepository
 ```
 
 After release complete, the artifacts will be synced to [Maven Central](https://mvnrepository.com/repos/central) automatically
