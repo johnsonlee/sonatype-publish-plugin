@@ -29,45 +29,52 @@ abstract class AbstractLibraryPublishPlugin : Plugin<Project> {
         }).takeIf(Collection<Pair<String, String>>::isNotEmpty)
                 ?: devAccount
                 ?: setOf("${localName}@local" to localName)
+        val configure: Project.() -> Unit = {
+            configureDependencies()
 
-        project.run {
-            afterEvaluate {
-                configureDependencies()
-
-                publishing {
-                    publications {
-                        createMavenPublications(this) {
-                            pom.withXml {
-                                asNode().apply {
-                                    appendNode("name", project.name)
+            publishing {
+                publications {
+                    createMavenPublications(this) {
+                        pom.withXml {
+                            asNode().apply {
+                                appendNode("name", project.name)
+                                appendNode("url", url)
+                                appendNode("description", project.description ?: project.name)
+                                appendNode("scm").apply {
+                                    appendNode("connection", "scm:git:${url}")
+                                    appendNode("developerConnection", "scm:git:${url}")
                                     appendNode("url", url)
-                                    appendNode("description", project.description ?: project.name)
-                                    appendNode("scm").apply {
-                                        appendNode("connection", "scm:git:${url}")
-                                        appendNode("developerConnection", "scm:git:${url}")
-                                        appendNode("url", url)
-                                    }
-                                    appendNode("licenses").apply {
-                                        license?.let {
-                                            appendNode("license").apply {
-                                                appendNode("name", license.name)
-                                                appendNode("url", license.url)
-                                            }
+                                }
+                                appendNode("licenses").apply {
+                                    license?.let {
+                                        appendNode("license").apply {
+                                            appendNode("name", license.name)
+                                            appendNode("url", license.url)
                                         }
                                     }
-                                    appendNode("developers").apply {
-                                        developers.forEach { (email, name) ->
-                                            appendNode("developer").apply {
-                                                appendNode("id", name)
-                                                appendNode("name", name)
-                                                appendNode("email", email)
-                                            }
+                                }
+                                appendNode("developers").apply {
+                                    developers.forEach { (email, name) ->
+                                        appendNode("developer").apply {
+                                            appendNode("id", name)
+                                            appendNode("name", name)
+                                            appendNode("email", email)
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                }
+            }
+        }
+
+        project.run {
+            if (state.executed) {
+                configure()
+            } else {
+                afterEvaluate {
+                    configure()
                 }
             }
         }
