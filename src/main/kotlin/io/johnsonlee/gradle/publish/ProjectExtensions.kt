@@ -98,11 +98,19 @@ fun Project.configureSigning() {
 
     plugins.apply("signing")
 
-    afterEvaluate {
+    val configure: Project.() -> Unit = {
         publishing {
             signing {
                 sign(publications)
             }
+        }
+    }
+
+    if (state.executed) {
+        configure()
+    } else {
+        afterEvaluate {
+            configure()
         }
     }
 
@@ -158,7 +166,7 @@ fun Project.configureMavenRepository() {
 }
 
 fun Project.configurePublishRepository() {
-    afterEvaluate {
+    val configure: Project.() -> Unit = {
         publishing {
             repositories {
                 if (useSonatype) {
@@ -171,6 +179,14 @@ fun Project.configurePublishRepository() {
                     })
                 }
             }
+        }
+    }
+
+    if (state.executed) {
+        configure()
+    } else {
+        afterEvaluate {
+            configure()
         }
     }
 }

@@ -29,19 +29,30 @@ class SonatypePublishPlugin : Plugin<Project> {
 
             configurePublishRepository()
 
-            afterEvaluate {
-                when {
-                    hasAndroidLibraryPlugin -> plugins.apply(AndroidLibraryPublishPlugin::class.java)
-                    hasJavaGradlePlugin -> plugins.apply(GradlePluginPublishPlugin::class.java)
-                    hasKotlinPlugin -> plugins.apply(KotlinLibraryPublishPlugin::class.java)
-                    hasJavaLibraryPlugin -> plugins.apply(JavaLibraryPublishPlugin::class.java)
-                }
-            }
+            applySubplugin()
 
             // for nexus
             configureMavenRepository()
 
             configureSigning()
+        }
+    }
+
+    private fun Project.applySubplugin() {
+        val apply: Project.() -> Unit = {
+            when {
+                hasAndroidLibraryPlugin -> plugins.apply(AndroidLibraryPublishPlugin::class.java)
+                hasJavaGradlePlugin -> plugins.apply(GradlePluginPublishPlugin::class.java)
+                hasKotlinPlugin -> plugins.apply(KotlinLibraryPublishPlugin::class.java)
+                hasJavaLibraryPlugin -> plugins.apply(JavaLibraryPublishPlugin::class.java)
+            }
+        }
+        if (state.executed) {
+            apply()
+        } else {
+            afterEvaluate {
+                apply()
+            }
         }
     }
 
