@@ -132,8 +132,8 @@ nexusStaging {
     packageGroup = "io.johnsonlee"
     username = OSSRH_USERNAME
     password = OSSRH_PASSWORD
-    numberOfRetries = 50
-    delayBetweenRetriesInMillis = 3000
+    numberOfRetries = 60
+    delayBetweenRetriesInMillis = 5000
 }
 
 val functionalTestSourceSet = sourceSets.create("functionalTest") {
