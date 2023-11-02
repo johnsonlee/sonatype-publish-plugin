@@ -2,7 +2,10 @@ package io.johnsonlee.gradle.publish
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
 import org.gradle.kotlin.dsl.repositories
+import org.gradle.kotlin.dsl.withType
+import org.gradle.plugins.signing.Sign
 
 /**
  * Gradle plugin for publishing artifacts to [Sonatype](https://oss.sonatype.org/) or Nexus
@@ -35,6 +38,11 @@ class SonatypePublishPlugin : Plugin<Project> {
             configureMavenRepository()
 
             configureSigning()
+
+            tasks.withType<AbstractPublishToMaven>().configureEach {
+                val signingTasks = tasks.withType<Sign>()
+                mustRunAfter(signingTasks)
+            }
         }
     }
 

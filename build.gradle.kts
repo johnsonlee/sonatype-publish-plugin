@@ -1,5 +1,6 @@
 import org.gradle.api.Project.DEFAULT_VERSION
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-gradle-plugin`
@@ -7,7 +8,7 @@ plugins {
     `kotlin-dsl`
     `signing`
     kotlin("jvm") version embeddedKotlinVersion
-    id("org.jetbrains.dokka") version "1.4.32"
+    id("org.jetbrains.dokka") version "1.9.10"
     id("io.codearte.nexus-staging") version "0.22.0"
     id("de.marcphilipp.nexus-publish") version "0.4.0"
 }
@@ -28,7 +29,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("de.marcphilipp.gradle:nexus-publish-plugin:0.4.0")
     implementation("io.codearte.nexus-staging:io.codearte.nexus-staging.gradle.plugin:0.22.0")
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.4.32")
+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.9.10")
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
     compileOnly("com.android.tools.build:gradle:4.0.0")
 
@@ -49,6 +50,13 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xjsr305=strict")
+        jvmTarget = "1.8"
+    }
+}
+
 val sourcesJar by tasks.registering(Jar::class) {
     dependsOn(JavaPlugin.CLASSES_TASK_NAME)
     archiveClassifier.set("sources")
@@ -65,7 +73,7 @@ val OSSRH_USERNAME = "${project.properties["OSSRH_USERNAME"] ?: System.getenv("O
 val OSSRH_PASSWORD = "${project.properties["OSSRH_PASSWORD"] ?: System.getenv("OSSRH_PASSWORD")}"
 
 nexusPublishing {
-    repositories {
+    this.repositories {
         sonatype {
             username.set(OSSRH_USERNAME)
             password.set(OSSRH_PASSWORD)
@@ -127,6 +135,10 @@ publishing {
     }
 }
 
+tasks.withType<AbstractPublishToMaven>().configureEach {
+    val signingTasks = tasks.withType<Sign>()
+    mustRunAfter(signingTasks)
+}
 
 nexusStaging {
     packageGroup = "io.johnsonlee"

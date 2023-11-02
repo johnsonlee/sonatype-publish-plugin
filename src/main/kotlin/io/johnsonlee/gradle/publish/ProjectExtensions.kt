@@ -148,7 +148,7 @@ fun Project.configureNexusPublish() {
     plugins.apply("de.marcphilipp.nexus-publish")
 
     extensions.configure<NexusPublishExtension>("nexusPublishing") {
-        repositories {
+        this.repositories {
             sonatype {
                 username.set(OSSRH_USERNAME)
                 password.set(OSSRH_PASSWORD)
