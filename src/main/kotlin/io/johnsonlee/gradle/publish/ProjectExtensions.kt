@@ -11,6 +11,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.kotlin.dsl.repositories
 import org.gradle.plugins.signing.SigningExtension
 import java.net.URI
+import java.time.Duration
 
 internal val SIGNING_PROPERTIES = arrayOf("signing.keyId", "signing.password", "signing.secretKeyRingFile")
 
@@ -53,6 +54,20 @@ val Project.NEXUS_USERNAME: String?
 
 val Project.NEXUS_PASSWORD: String?
     get() = ProjectVariableDelegate.of(this)["NEXUS_PASSWORD"]
+
+val Project.nexusPublishingClientTimeout: Duration
+    get() = (try {
+        Duration.parse(ProjectVariableDelegate.of(this)["nexusPublishing.clientTimeout"])
+    } catch (_: Throwable) {
+        null
+    }) ?: Duration.ofMinutes(3)
+
+val Project.nexusPublishingConnectTimeout: Duration
+    get() = (try {
+        Duration.parse(ProjectVariableDelegate.of(this)["nexusPublishing.connectTimeout"])
+    } catch (_: Throwable) {
+        null
+    }) ?: Duration.ofMinutes(3)
 
 val Project.useSonatype: Boolean
     get() = OSSRH_USERNAME != null && OSSRH_PASSWORD != null && OSSRH_PACKAGE_GROUP != null && hasSigningProperties
@@ -154,6 +169,8 @@ fun Project.configureNexusPublish() {
                 password.set(OSSRH_PASSWORD)
             }
         }
+        this.clientTimeout.set(nexusPublishingClientTimeout)
+        this.connectTimeout.set(nexusPublishingConnectTimeout)
     }
 
     logger.info("[${this}] Configuring `nexusPublishing` completed")
