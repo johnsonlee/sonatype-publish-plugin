@@ -1,7 +1,6 @@
 package io.johnsonlee.gradle.publish
 
-import de.marcphilipp.gradle.nexus.NexusPublishExtension
-import io.codearte.gradle.nexus.NexusStagingExtension
+import io.github.gradlenexus.publishplugin.NexusPublishExtension
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.api.GradleException
@@ -45,6 +44,9 @@ val Project.OSSRH_PACKAGE_GROUP: String?
 
 val Project.OSSRH_SERVER_URL: URI
     get() = ProjectVariableDelegate.of(this)["OSSRH_SERVER_URL"]?.let(::URI) ?: SONATYPE_SERVER
+
+val Project.OSSRH_SNAPSHOT_URL: URI
+    get() = ProjectVariableDelegate.of(this)["OSSRH_SNAPSHOT_URL"]?.let(::URI) ?: SONATYPE_SNAPSHOT_SERVER
 
 val Project.NEXUS_URL: URI?
     get() = ProjectVariableDelegate.of(this)["NEXUS_URL"]?.let(::URI)
@@ -132,48 +134,38 @@ fun Project.configureSigning() {
     logger.info("[${this}] Configuring `signing` completed")
 }
 
-fun Project.configureNexusStaging() {
-    if (OSSRH_USERNAME == null || OSSRH_PASSWORD == null || OSSRH_PACKAGE_GROUP == null) {
-        logger.warn("[${this}] Configuring `nexusStaging` skipped: `OSSRH_USERNAME` or `OSSRH_PASSWORD` or `OSSRH_PACKAGE_GROUP` not found")
-        return
-    }
-
-    plugins.apply("io.codearte.nexus-staging")
-
-    val stagingUrl = OSSRH_SERVER_URL.resolve("/service/local/").toString()
-
-    extensions.configure<NexusStagingExtension>("nexusStaging") {
-        serverUrl = stagingUrl
-        packageGroup = OSSRH_PACKAGE_GROUP
-        username = OSSRH_USERNAME
-        password = OSSRH_PASSWORD
-        numberOfRetries = 50
-        delayBetweenRetriesInMillis = 3000
-    }
-
-    logger.info("[${this}] Configuring `nexusStaging` {serverUrl=`${stagingUrl}`, packageGroup=`${OSSRH_PACKAGE_GROUP}`} completed")
-}
-
 fun Project.configureNexusPublish() {
     if (OSSRH_USERNAME == null || OSSRH_PASSWORD == null) {
         logger.warn("[${this}] Configuring `nexusPublishing` skipped: `OSSRH_USERNAME` or `OSSRH_PASSWORD` not found")
         return
     }
 
-    plugins.apply("de.marcphilipp.nexus-publish")
+    plugins.apply("io.github.gradle-nexus.publish-plugin")
+
+    val resolvedNexusUrl = OSSRH_SERVER_URL.resolve("/service/local/")
+    val resolvedSnapshotUrl = OSSRH_SNAPSHOT_URL
 
     extensions.configure<NexusPublishExtension>("nexusPublishing") {
         this.repositories {
             sonatype {
+                nexusUrl.set(resolvedNexusUrl)
+                snapshotRepositoryUrl.set(resolvedSnapshotUrl)
                 username.set(OSSRH_USERNAME)
                 password.set(OSSRH_PASSWORD)
             }
+        }
+        OSSRH_PACKAGE_GROUP?.let {
+            this.packageGroup.set(it)
+        }
+        this.transitionCheckOptions {
+            maxRetries.set(50)
+            delayBetween.set(Duration.ofSeconds(3))
         }
         this.clientTimeout.set(nexusPublishingClientTimeout)
         this.connectTimeout.set(nexusPublishingConnectTimeout)
     }
 
-    logger.info("[${this}] Configuring `nexusPublishing` completed")
+    logger.info("[${this}] Configuring `nexusPublishing` {nexusUrl=`${resolvedNexusUrl}`, snapshotUrl=`${resolvedSnapshotUrl}`, packageGroup=`${OSSRH_PACKAGE_GROUP}`} completed")
 }
 
 fun Project.configureMavenRepository() {

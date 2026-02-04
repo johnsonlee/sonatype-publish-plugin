@@ -1,6 +1,7 @@
 import org.gradle.api.Project.DEFAULT_VERSION
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.time.Duration
 
 plugins {
     `java-gradle-plugin`
@@ -9,8 +10,7 @@ plugins {
     `signing`
     kotlin("jvm") version embeddedKotlinVersion
     id("org.jetbrains.dokka") version "1.9.10"
-    id("io.codearte.nexus-staging") version "0.22.0"
-    id("de.marcphilipp.nexus-publish") version "0.4.0"
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
 group = "io.johnsonlee"
@@ -27,8 +27,7 @@ dependencies {
     implementation(gradleApi())
     implementation(platform(kotlin("bom")))
     implementation(kotlin("stdlib"))
-    implementation("de.marcphilipp.gradle:nexus-publish-plugin:0.4.0")
-    implementation("io.codearte.nexus-staging:io.codearte.nexus-staging.gradle.plugin:0.22.0")
+    implementation("io.github.gradle-nexus:publish-plugin:2.0.0")
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.9.10")
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
     compileOnly("com.android.tools.build:gradle:4.0.0")
@@ -73,18 +72,24 @@ val OSSRH_USERNAME = "${project.properties["OSSRH_USERNAME"] ?: System.getenv("O
 val OSSRH_PASSWORD = "${project.properties["OSSRH_PASSWORD"] ?: System.getenv("OSSRH_PASSWORD")}"
 
 nexusPublishing {
-    this.repositories {
+    repositories {
         sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
             username.set(OSSRH_USERNAME)
             password.set(OSSRH_PASSWORD)
         }
+    }
+    transitionCheckOptions {
+        maxRetries.set(60)
+        delayBetween.set(Duration.ofMillis(5000))
     }
 }
 
 publishing {
     repositories {
         maven {
-            url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            url = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
         }
     }
     publications {
@@ -138,14 +143,6 @@ publishing {
 tasks.withType<AbstractPublishToMaven>().configureEach {
     val signingTasks = tasks.withType<Sign>()
     mustRunAfter(signingTasks)
-}
-
-nexusStaging {
-    packageGroup = "io.johnsonlee"
-    username = OSSRH_USERNAME
-    password = OSSRH_PASSWORD
-    numberOfRetries = 60
-    delayBetweenRetriesInMillis = 5000
 }
 
 val functionalTestSourceSet = sourceSets.create("functionalTest") {
