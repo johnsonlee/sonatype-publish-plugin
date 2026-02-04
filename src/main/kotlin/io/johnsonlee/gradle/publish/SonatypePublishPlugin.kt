@@ -8,7 +8,7 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 
 /**
- * Gradle plugin for publishing artifacts to [Sonatype](https://oss.sonatype.org/) or Nexus
+ * Gradle plugin for publishing artifacts to [Sonatype Central Portal](https://central.sonatype.com/) or Nexus
  *
  * @author johnsonlee
  */
@@ -17,14 +17,11 @@ class SonatypePublishPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         project.rootProject.run {
-            configureNexusStaging()
+            configureNexusPublish()
         }
 
         project.run {
             plugins.apply("maven-publish")
-
-            // for sonatype
-            configureNexusPublish()
 
             repositories {
                 mavenCentral()

@@ -4,7 +4,9 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import java.net.URI
 
-internal val SONATYPE_SERVER = URI("https://oss.sonatype.org/")
+internal val SONATYPE_SERVER = URI("https://ossrh-staging-api.central.sonatype.com/")
+
+internal val SONATYPE_SNAPSHOT_SERVER = URI("https://central.sonatype.com/repository/maven-snapshots/")
 
 fun RepositoryHandler.configureNexus(project: Project, repository: String = "/content/repositories/public") {
     if (project.NEXUS_URL != null && project.NEXUS_USERNAME != null && project.NEXUS_PASSWORD != null) {
