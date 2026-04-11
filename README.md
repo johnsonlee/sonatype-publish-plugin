@@ -2,13 +2,13 @@
 
 Due to Sonatype's strict validation rules, the publishing requirement must be satisfied by every artifact which wants to be published to Sonatype.
 
-For Java and Android library projects, the publishing configurations are very similar, but the configurations of creating publication are quite different, this gradle plugin is used to simplify the engineering complexity of publishing artifacts to [Sonatype](https://oss.sonatype.org/), developers don't need to write boilerplate publishing DSL for each project to satisfy Sonatype validation rules.
+For Java and Android library projects, the publishing configurations are very similar, but the configurations of creating publication are quite different, this gradle plugin is used to simplify the engineering complexity of publishing artifacts to [Sonatype Central Portal](https://central.sonatype.com/), developers don't need to write boilerplate publishing DSL for each project to satisfy Sonatype validation rules.
 
-This plugin not only support publishing artifacts to [Sonatype](https://oss.sonatype.org/), but also support publishing artifacts to private Nexus repository.
+This plugin not only support publishing artifacts to [Sonatype Central Portal](https://central.sonatype.com/), but also support publishing artifacts to private Nexus repository.
 
 ## Prerequisite
 
-* [Sonatype](https://oss.sonatype.org/) Account
+* [Sonatype Central Portal](https://central.sonatype.com/) Account
 * [GPG](https://gnupg.org/) key
 
 For more information, see [References](#references)
@@ -18,7 +18,7 @@ For more information, see [References](#references)
 ```kotlin
 plugins {
     kotlin("jvm")
-    id("io.johnsonlee.sonatype-publish-plugin") version "1.6.1"
+    id("io.johnsonlee.sonatype-publish-plugin") version "2.0.0"
 }
 
 group = "<your-group-id>"
@@ -39,15 +39,15 @@ To publish artifacts to remote maven repository, additional configurations are q
 
 * `OSSRH_USERNAME`
 
-    The account id of [Sonatype](https://oss.sonatype.org/), searching from project properties by default, otherwise searching from system env
+    The account id of [Sonatype Central Portal](https://central.sonatype.com/), searching from project properties by default, otherwise searching from system env
 
 * `OSSRH_PASSWORD`
 
-    the account password of [Sonatype](https://oss.sonatype.org/), searching from project properties by default, otherwise searching from system env
+    The account password of [Sonatype Central Portal](https://central.sonatype.com/), searching from project properties by default, otherwise searching from system env
 
 * `OSSRH_PACKAGE_GROUP`
 
-    The package group of [Sonatype](https://oss.sonatype.org/), e.g. `io.johnsonlee`, searching from project properties by default, otherwise searching from system env
+    The package group of [Sonatype Central Portal](https://central.sonatype.com/), e.g. `io.johnsonlee`, searching from project properties by default, otherwise searching from system env
 
 ### Nexus
 
@@ -142,11 +142,7 @@ For more information on repository licenses, see "[Supported Licenses](https://d
 ## Publishing Artifacts to Sonatype
 
 ```bash
-./gradlew initializeSonatypeStagingRepository publishToSonatype
-```
-
-```bash
-./gradlew closeAndReleaseRepository
+./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
 ```
 
 ## Publishing Artifacts to Nexus
@@ -169,7 +165,8 @@ After release complete, the artifacts will be synced to [Maven Central](https://
 
 ## References
 
-- [OSSRH Requirements](https://central.sonatype.org/publish/requirements/)
-- [OSSRH Guide](https://central.sonatype.org/publish/publish-guide/)
+- [Sonatype Central Portal](https://central.sonatype.com/)
+- [Central Portal Requirements](https://central.sonatype.org/publish/requirements/)
+- [Central Portal Publishing Guide](https://central.sonatype.org/publish/publish-portal-gradle/)
 - [Generating A New GPG Key](https://docs.github.com/en/authentication/managing-commit-signature-verification/generating-a-new-gpg-key)
 
