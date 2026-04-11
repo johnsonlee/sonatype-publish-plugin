@@ -140,6 +140,11 @@ fun Project.configureNexusPublish() {
         return
     }
 
+    if (plugins.hasPlugin("io.github.gradle-nexus.publish-plugin")) {
+        logger.info("[${this}] Configuring `nexusPublishing` skipped: already configured")
+        return
+    }
+
     plugins.apply("io.github.gradle-nexus.publish-plugin")
 
     val resolvedNexusUrl = OSSRH_SERVER_URL.resolve("/service/local/")
