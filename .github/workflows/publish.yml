@@ -27,18 +27,13 @@ jobs:
         echo "Create GPG private key"
         echo $GPG_KEY_ARMOR | base64 --decode > ${GITHUB_WORKSPACE}/secring.gpg
         echo "Publish ${GITHUB_REF} to Sonatype"
-        ./gradlew clean publishToSonatype -S --no-daemon \
+        ./gradlew clean publishToSonatype closeAndReleaseSonatypeStagingRepository -S --no-daemon \
             -Pversion=${GITHUB_REF/refs\/tags\/v/} \
             -POSSRH_USERNAME=${OSSRH_USERNAME} \
             -POSSRH_PASSWORD=${OSSRH_PASSWORD} \
             -Psigning.keyId=${GPG_KEY_ID} \
             -Psigning.password=${GPG_PASSPHRASE} \
             -Psigning.secretKeyRingFile=${GITHUB_WORKSPACE}/secring.gpg
-        ./gradlew closeAndReleaseSonatypeStagingRepository -S --no-daemon \
-            -Pversion=${GITHUB_REF/refs\/tags\/v/} \
-            -POSSRH_USERNAME=${OSSRH_USERNAME} \
-            -POSSRH_PASSWORD=${OSSRH_PASSWORD} \
-            --no-daemon
       env:
         GPG_KEY_ARMOR: ${{ secrets.GPG_KEY_ARMOR }}
         GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
