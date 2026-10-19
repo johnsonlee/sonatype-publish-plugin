@@ -9,7 +9,7 @@ plugins {
     `kotlin-dsl`
     `signing`
     kotlin("jvm") version embeddedKotlinVersion
-    id("org.jetbrains.dokka") version "1.9.10"
+    id("org.jetbrains.dokka") version "2.2.0"
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
@@ -28,7 +28,7 @@ dependencies {
     implementation(platform(kotlin("bom")))
     implementation(kotlin("stdlib"))
     implementation("io.github.gradle-nexus:publish-plugin:2.0.0")
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.9.10")
+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.2.0")
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
     compileOnly("com.android.tools.build:gradle:4.0.0")
 
@@ -63,9 +63,8 @@ val sourcesJar by tasks.registering(Jar::class) {
 }
 
 val javadocJar by tasks.registering(Jar::class) {
-    dependsOn("dokkaHtml")
     archiveClassifier.set("javadoc")
-    from(tasks["dokkaHtml"])
+    from(tasks.named("dokkaGeneratePublicationHtml"))
 }
 
 val OSSRH_USERNAME = "${project.properties["OSSRH_USERNAME"] ?: System.getenv("OSSRH_USERNAME")}"

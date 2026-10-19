@@ -21,9 +21,8 @@ open class KotlinLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
             register("mavenJava", MavenPublication::class) {
                 val sourceSets = the<SourceSetContainer>()
                 val javadocJar = tasks.register("packageJavadocFor${name.capitalize()}", Jar::class.java) {
-                    dependsOn("dokkaHtml")
                     archiveClassifier.set("javadoc")
-                    from(tasks["dokkaHtml"])
+                    from(tasks.named(DOKKA_HTML_TASK_NAME))
                 }
                 val sourcesJar = tasks.register("packageSourcesFor${name.capitalize()}", Jar::class.java) {
                     dependsOn(JavaPlugin.CLASSES_TASK_NAME)

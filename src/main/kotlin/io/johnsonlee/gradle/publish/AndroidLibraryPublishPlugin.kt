@@ -27,9 +27,8 @@ class AndroidLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
             android.libraryVariants.forEach { variant ->
                 val javadocJar = if (extensions.findByName("kotlin") != null) {
                     tasks.register("packageJavadocFor${variant.name.capitalize()}", Jar::class.java) {
-                        dependsOn("dokkaHtml")
                         archiveClassifier.set("javadoc")
-                        from(tasks["dokkaHtml"])
+                        from(tasks.named(DOKKA_HTML_TASK_NAME))
                     }
                 } else {
                     val javadoc = tasks.register("javadocFor${variant.name.capitalize()}", Javadoc::class.java) {
@@ -40,9 +39,8 @@ class AndroidLibraryPublishPlugin : AbstractLibraryPublishPlugin() {
                     }
 
                     tasks.register("packageJavadocFor${variant.name.capitalize()}", Jar::class.java) {
-                        dependsOn(javadoc)
                         archiveClassifier.set("javadoc")
-                        from(tasks["dokkaHtml"])
+                        from(javadoc)
                     }
                 }
 
