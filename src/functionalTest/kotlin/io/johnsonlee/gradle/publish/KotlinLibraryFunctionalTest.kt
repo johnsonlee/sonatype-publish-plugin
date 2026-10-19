@@ -14,36 +14,6 @@ class KotlinLibraryFunctionalTest {
     private val tmp = File("build", "tmp").also(File::mkdirs)
 
     @Test
-    fun `publish kotlin library to maven local with gradle 7_4`() {
-        val result = publishToMavenLocal("7.4")
-        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
-    }
-
-    @Test
-    fun `publish kotlin library to maven local with gradle 7_4_1`() {
-        val result = publishToMavenLocal("7.4.1")
-        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
-    }
-
-    @Test
-    fun `publish kotlin library to maven local with gradle 7_4_2`() {
-        val result = publishToMavenLocal("7.4.2")
-        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
-    }
-
-    @Test
-    fun `publish kotlin library to maven local with gradle 7_5`() {
-        val result = publishToMavenLocal("7.5")
-        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
-    }
-
-    @Test
-    fun `publish kotlin library to maven local with gradle 7_5_1`() {
-        val result = publishToMavenLocal("7.5.1")
-        assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })
-    }
-
-    @Test
     fun `publish kotlin library to maven local with gradle 7_6`() {
         val result = publishToMavenLocal("7.6")
         assertTrue(result.tasks.none { it.outcome == TaskOutcome.FAILED })

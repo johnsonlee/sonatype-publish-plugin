@@ -14,6 +14,11 @@ import java.time.Duration
 
 internal val SIGNING_PROPERTIES = arrayOf("signing.keyId", "signing.password", "signing.secretKeyRingFile")
 
+/**
+ * The task generating HTML documentation in Dokka Gradle Plugin v2, replacing `dokkaHtml` of v1
+ */
+internal const val DOKKA_HTML_TASK_NAME = "dokkaGeneratePublicationHtml"
+
 val Project.hasKotlinPlugin
     get() = plugins.hasPlugin("org.jetbrains.kotlin.jvm")
 
